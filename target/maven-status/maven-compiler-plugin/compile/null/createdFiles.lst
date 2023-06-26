@@ -1,0 +1,7 @@
+com/devex/QuestionEntity.class
+com/devex/AnswerEntity.class
+META-INF/panache-archive.marker
+com/devex/AnswerDto.class
+com/devex/QuestionResource.class
+com/devex/ResponderEntity.class
+com/devex/QuestionService.class
