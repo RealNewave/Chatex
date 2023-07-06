@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
+import java.util.UUID;
 
 @Path("/api/v1/questions")
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class QuestionResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createQuestion(SubjectDto subjectDto) {
-        long questionId = questionService.createQuestion(subjectDto);
+        UUID questionId = questionService.createQuestion(subjectDto);
         return Response.created(URI.create("/api/v1/questions/" + questionId)).build();
     }
 
@@ -33,16 +34,16 @@ public class QuestionResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{username}/{questionId}")
-    public Response getQuestion(@PathParam("username") String username, @PathParam("questionId") Long questionId) {
-        return Response.ok(questionService.getQuestion(questionId)).build();
+    public Response getQuestion(@PathParam("username") String username, @PathParam("questionId") String questionId) {
+        return Response.ok(questionService.getQuestion(UUID.fromString(questionId))).build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{questionId}")
-    public Response answerQuestion(@PathParam("questionId") Long questionId, AnswerDto answerDto) {
-        questionService.answerQuestion(questionId, answerDto);
+    public Response answerQuestion(@PathParam("questionId") String questionId, AnswerDto answerDto) {
+        questionService.answerQuestion(UUID.fromString(questionId), answerDto);
         return Response.accepted().build();
     }
 }
