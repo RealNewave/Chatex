@@ -1,4 +1,4 @@
-package com.devex;
+package com.devex.question;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;

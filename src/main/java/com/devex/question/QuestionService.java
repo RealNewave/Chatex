@@ -1,5 +1,6 @@
-package com.devex;
+package com.devex.question;
 
+import com.devex.responder.ResponderEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;

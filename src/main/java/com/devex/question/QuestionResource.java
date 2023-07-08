@@ -1,4 +1,4 @@
-package com.devex;
+package com.devex.question;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;

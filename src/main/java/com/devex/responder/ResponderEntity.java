@@ -1,4 +1,4 @@
-package com.devex;
+package com.devex.responder;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.Entity;
@@ -11,4 +11,5 @@ import lombok.EqualsAndHashCode;
 public class ResponderEntity extends PanacheEntity {
 
     private String username;
+    private String password;
 }

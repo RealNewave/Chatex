@@ -1,4 +1,4 @@
-package com.devex;
+package com.devex.question;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.*;
