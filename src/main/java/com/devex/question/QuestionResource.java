@@ -1,6 +1,8 @@
 package com.devex.question;
 
+import io.vertx.core.http.HttpServerRequest;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,9 @@ public class QuestionResource {
 
     final QuestionService questionService;
 
+    @Context
+    HttpServerRequest request;
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -25,16 +30,16 @@ public class QuestionResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{username}")
-    public Response getQuestions(@PathParam("username") String username) {
+    public Response getQuestions() {
+        String username = request.getHeader("username");
         return Response.ok(questionService.getQuestions(username)).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{username}/{questionId}")
-    public Response getQuestion(@PathParam("username") String username, @PathParam("questionId") String questionId) {
+    @Path("{questionId}")
+    public Response getQuestion(@PathParam("questionId") String questionId) {
         return Response.ok(questionService.getQuestion(UUID.fromString(questionId))).build();
     }
 
