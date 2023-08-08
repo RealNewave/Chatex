@@ -1,5 +1,5 @@
 package com.devex.question;
 
 
-public record AnswerDto(String username, String answer) {
+public record AnswerDto(String answer) {
 }

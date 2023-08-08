@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,42 +13,46 @@ import java.util.UUID;
 
 @ApplicationScoped
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
 
     @Transactional
-    public UUID createQuestion(SubjectDto subjectDto) {
+    public UUID createQuestion(String username, String subject) {
         QuestionEntity questionEntity = new QuestionEntity();
-        questionEntity.setQuestion(subjectDto.subject());
-        questionEntity.setStarter(subjectDto.username());
+        questionEntity.setQuestion(subject);
+        questionEntity.setStarter(username);
         QuestionEntity.persist(questionEntity);
         return questionEntity.id;
     }
 
-    public List<QuestionEntity> getQuestions(String username) {
-        List<QuestionEntity> questionEntities = QuestionEntity.getEntityManager()
-                .createQuery(
-                        "SELECT q " +
-                        "FROM QuestionEntity q " +
-                        "LEFT JOIN q.answers a " +
-                        "WHERE q.starter = :username OR a.username = :username")
-                .setParameter("username", username)
-                .getResultList();
+    public List<QuestionEntity> getQuestions(final String username, final String question) {
 
-        return questionEntities;
+        String query = "SELECT q " +
+                "FROM QuestionEntity q " +
+                "LEFT JOIN q.answers a " +
+                "WHERE (q.starter = ?1 OR a.username = ?1)";
+
+        if (question != null) {
+            query += " AND q.question like ?2";
+            return QuestionEntity.list(query, username, question);
+        }
+        return QuestionEntity.list(query, username);
+
+
     }
 
     @Transactional
-    public AnswerEntity answerQuestion(UUID questionId, AnswerDto answerDto) {
+    public AnswerEntity answerQuestion(final UUID questionId, final String username, final String answer) {
         Optional<QuestionEntity> questionEntityOptional = QuestionEntity.findByIdOptional(questionId);
-        if(questionEntityOptional.isPresent()){
+        if (questionEntityOptional.isPresent()) {
             QuestionEntity questionEntity = questionEntityOptional.get();
             AnswerEntity answerEntity = new AnswerEntity();
-            answerEntity.setUsername(answerDto.username());
-            answerEntity.setAnswer(answerDto.answer());
+            answerEntity.setUsername(username);
+            answerEntity.setAnswer(answer);
             answerEntity.persistAndFlush();
 
             ResponderEntity responderEntity = new ResponderEntity();
-            responderEntity.setUsername(answerDto.username());
+            responderEntity.setUsername(username);
             responderEntity.persist();
 
             questionEntity.getAnswers().add(answerEntity);
@@ -59,7 +64,7 @@ public class QuestionService {
         }
     }
 
-    public QuestionEntity getQuestion(UUID questionId) {
+    public QuestionEntity getQuestion(final UUID questionId) {
         return QuestionEntity.findById(questionId);
     }
 }

@@ -1,4 +1,6 @@
 package com.devex.responder;
 
-public record ResponderDto(String username, String password) {
+import jakarta.validation.constraints.NotNull;
+
+public record ResponderDto(@NotNull String username, @NotNull String password) {
 }

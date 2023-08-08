@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @ApplicationScoped
 @RequiredArgsConstructor
+@Slf4j
 public class ResponderService {
 
     @Transactional

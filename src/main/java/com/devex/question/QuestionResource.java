@@ -6,12 +6,14 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.util.UUID;
 
 @Path("/api/v1/questions")
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionResource {
 
     final QuestionService questionService;
@@ -23,16 +25,17 @@ public class QuestionResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createQuestion(SubjectDto subjectDto) {
-        UUID questionId = questionService.createQuestion(subjectDto);
+        String username = request.getHeader("username");
+        UUID questionId = questionService.createQuestion(username, subjectDto.subject());
         return Response.created(URI.create("/api/v1/questions/" + questionId)).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getQuestions() {
+    public Response getQuestions(@QueryParam("question") String question) {
         String username = request.getHeader("username");
-        return Response.ok(questionService.getQuestions(username)).build();
+        return Response.ok(questionService.getQuestions(username, question)).build();
     }
 
     @GET
@@ -48,7 +51,8 @@ public class QuestionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("{questionId}")
     public Response answerQuestion(@PathParam("questionId") String questionId, AnswerDto answerDto) {
-        questionService.answerQuestion(UUID.fromString(questionId), answerDto);
+        String username = request.getHeader("username");
+        questionService.answerQuestion(UUID.fromString(questionId), username, answerDto.answer());
         return Response.accepted().build();
     }
 }
