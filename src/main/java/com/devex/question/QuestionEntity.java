@@ -8,6 +8,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -29,5 +30,7 @@ public class QuestionEntity extends PanacheEntityBase {
     private List<AnswerEntity> answers;
     @CreationTimestamp
     private ZonedDateTime timestamp;
+    @UpdateTimestamp
+    private ZonedDateTime updated;
 
 }

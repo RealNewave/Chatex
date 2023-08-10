@@ -1,12 +1,12 @@
 package com.devex.question;
 
-import com.devex.responder.ResponderEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,7 +34,7 @@ public class QuestionService {
 
         if (question != null) {
             query += " AND q.question like ?2";
-            return QuestionEntity.list(query, username, question);
+            return QuestionEntity.list(query, username, "%" + question + "%");
         }
         return QuestionEntity.list(query, username);
 
@@ -51,11 +51,8 @@ public class QuestionService {
             answerEntity.setAnswer(answer);
             answerEntity.persistAndFlush();
 
-            ResponderEntity responderEntity = new ResponderEntity();
-            responderEntity.setUsername(username);
-            responderEntity.persist();
-
             questionEntity.getAnswers().add(answerEntity);
+            questionEntity.setUpdated(ZonedDateTime.now());
             questionEntity.persist();
             return answerEntity;
 

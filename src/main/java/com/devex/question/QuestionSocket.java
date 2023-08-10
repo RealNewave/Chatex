@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.context.ManagedExecutor;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class QuestionSocket {
 
-    final Map<String, Session> sessionMap = new ConcurrentHashMap<>();
+    final Map<Set<String>, Session> sessionMap = new ConcurrentHashMap<>();
     final QuestionService questionService;
     final ManagedExecutor managedExecutor;
 
@@ -29,32 +30,36 @@ public class QuestionSocket {
 
     @OnOpen
     public void onOpen(Session session, @PathParam("questionId") String questionId, @PathParam("username") String username){
-        sessionMap.put(username, session);
+        sessionMap.put(Set.of(username, questionId), session);
         log.info("{} connected", username);
     }
 
     @OnClose
     public void onClose(Session session, @PathParam("questionId") String questionId, @PathParam("username") String username){
-        sessionMap.remove(username);
+        sessionMap.remove(Set.of(username, questionId));
+        log.info("{} disconnected", username);
+
     }
 
     @OnError
     public void onError(Session session, @PathParam("questionId") String questionId, Throwable throwable, @PathParam("username") String username){
-        sessionMap.remove(username);
+        sessionMap.remove(Set.of(username, questionId));
+        log.info("{} error", username);
     }
 
     @OnMessage
     public void onMessage(String message, @PathParam("questionId") String questionId, @PathParam("username") String username){
-        log.info(message);
+        log.info("questionId: {} got message: {}", questionId, message);
         managedExecutor.submit(() -> {
             AnswerEntity answerEntity = questionService.answerQuestion(UUID.fromString(questionId), username, message);
-            sessionMap.values().forEach(session -> {
-                session.getAsyncRemote().sendObject(answerEntity, result -> {
+            sessionMap.forEach((key, session) -> {
+                if(key.contains(questionId)){
+                    session.getAsyncRemote().sendObject(answerEntity, result -> {
                     if(result.getException() != null){
-                        log.error("{}", result.getException());
+                        log.error("on message error: {}", result.getException(), result.getException());
                     }
                 });
-            });
+            }});
         });
 
 
