@@ -2,14 +2,13 @@ package com.devex.question;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -25,20 +24,26 @@ public class QuestionService {
         return questionEntity.id;
     }
 
-    public List<QuestionEntity> getQuestions(final String username, final String question) {
+    public List<QuestionEntity> getQuestions(final String username, final String question, Boolean answered) {
+
+        Map<String, Object> paramMap = new HashMap<>();
 
         String query = "SELECT q " +
                 "FROM QuestionEntity q " +
                 "LEFT JOIN q.answers a " +
-                "WHERE (q.starter = ?1 OR a.username = ?1)";
+                "WHERE (q.starter = :username OR a.username = :username)";
+
+        paramMap.put("username", username);
 
         if (question != null) {
-            query += " AND q.question like ?2";
-            return QuestionEntity.list(query, username, "%" + question + "%");
+            query += " AND q.question like :question";
+            paramMap.put("question", question);
         }
-        return QuestionEntity.list(query, username);
-
-
+        if (answered != null) {
+            query += " AND q.answered = :answered";
+            paramMap.put("answered", answered);
+        }
+        return QuestionEntity.list(query, paramMap);
     }
 
     @Transactional
@@ -46,6 +51,9 @@ public class QuestionService {
         Optional<QuestionEntity> questionEntityOptional = QuestionEntity.findByIdOptional(questionId);
         if (questionEntityOptional.isPresent()) {
             QuestionEntity questionEntity = questionEntityOptional.get();
+            if (questionEntity.isAnswered()) {
+                throw new BadRequestException("Question already closed");
+            }
             AnswerEntity answerEntity = new AnswerEntity();
             answerEntity.setUsername(username);
             answerEntity.setAnswer(answer);
@@ -63,5 +71,10 @@ public class QuestionService {
 
     public QuestionEntity getQuestion(final UUID questionId) {
         return QuestionEntity.findById(questionId);
+    }
+
+    @Transactional
+    public void closeQuestion(UUID questionId, String username) {
+        QuestionEntity.update("answered = true WHERE starter = ?1 AND id = ?2", username, questionId);
     }
 }

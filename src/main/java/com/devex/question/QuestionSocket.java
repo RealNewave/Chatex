@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint(value = "/api/v1/questions/{questionId}/{username}", encoders = QuestionEncoder.class)
+@ServerEndpoint(value = "/chat/questions/{questionId}/{username}", encoders = QuestionEncoder.class)
 @ApplicationScoped
 @RequiredArgsConstructor
 @Slf4j

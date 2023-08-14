@@ -24,7 +24,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext containerRequestContext){
-        if(request.uri().contains("/api/v1/responders")){
+
+        if(request.uri().contains("/api/v1/responders") && !containerRequestContext.getRequest().getMethod().equals("PUT")){
             return;
         }
 

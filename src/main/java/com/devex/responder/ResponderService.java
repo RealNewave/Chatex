@@ -32,13 +32,20 @@ public class ResponderService {
                 .find("username = ?1", loginDto.username())
                 .firstResultOptional();
 
-        if(responderEntity.isEmpty() || !BcryptUtil.matches(loginDto.password(), responderEntity.get().getPassword())){
+        ResponderEntity existingResponderEntity = responderEntity.get();
+        if(responderEntity.isEmpty() || !BcryptUtil.matches(loginDto.password(), existingResponderEntity.getPassword())){
             throw new NotFoundException();
         }
+
+
+        if(existingResponderEntity.getToken().getUpdated().isBefore(ZonedDateTime.now().plusMinutes(30L))){
+            return existingResponderEntity.getToken().getToken();
+        }
+
         ResponderTokenEntity responderTokenEntity = new ResponderTokenEntity();
         responderTokenEntity.persist();
-        responderEntity.get().setToken(responderTokenEntity);
-        responderEntity.get().persist();
+        existingResponderEntity.setToken(responderTokenEntity);
+        existingResponderEntity.persist();
         return responderTokenEntity.getToken();
     }
 
@@ -57,5 +64,9 @@ public class ResponderService {
             return;
         }
         throw new UnauthorizedException("Token expired");
+    }
+
+    public void updateResponderDetails(ResponderDto responderDto) {
+        ResponderEntity.update("username = ?1 AND password = ?2", responderDto.username(), BcryptUtil.bcryptHash(responderDto.password()));
     }
 }

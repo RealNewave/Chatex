@@ -33,9 +33,9 @@ public class QuestionResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getQuestions(@QueryParam("question") String question) {
+    public Response getQuestions(@QueryParam("question") String question, @QueryParam("answered") Boolean answered) {
         String username = request.getHeader("username");
-        return Response.ok(questionService.getQuestions(username, question)).build();
+        return Response.ok(questionService.getQuestions(username, question, answered)).build();
     }
 
     @GET
@@ -53,6 +53,16 @@ public class QuestionResource {
     public Response answerQuestion(@PathParam("questionId") String questionId, AnswerDto answerDto) {
         String username = request.getHeader("username");
         questionService.answerQuestion(UUID.fromString(questionId), username, answerDto.answer());
+        return Response.accepted().build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("{questionId}/close")
+    public Response closeQuestion(@PathParam("questionId") String questionId){
+        String username = request.getHeader("username");
+        questionService.closeQuestion(UUID.fromString(questionId), username);
         return Response.accepted().build();
     }
 }

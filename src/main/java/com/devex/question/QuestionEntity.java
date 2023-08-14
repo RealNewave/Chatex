@@ -33,4 +33,6 @@ public class QuestionEntity extends PanacheEntityBase {
     @UpdateTimestamp
     private ZonedDateTime updated;
 
+    private boolean answered;
+
 }
