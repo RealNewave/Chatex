@@ -4,6 +4,7 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,9 @@ public class ResponderService {
 
     @Transactional
     public Long createResponder(ResponderDto responderDto) {
+        if(ResponderEntity.count("username", responderDto.username()) > 0){
+            throw new BadRequestException("User already exists");
+        }
         ResponderEntity responderEntity = new ResponderEntity();
         responderEntity.setUsername(responderDto.username());
         responderEntity.setPassword(BcryptUtil.bcryptHash(responderDto.password()));
