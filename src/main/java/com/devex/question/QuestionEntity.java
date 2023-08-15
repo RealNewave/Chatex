@@ -1,5 +1,6 @@
 package com.devex.question;
 
+import com.devex.responder.ResponderEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,6 +29,8 @@ public class QuestionEntity extends PanacheEntityBase {
     private String question;
     @OneToMany
     private List<AnswerEntity> answers;
+    @OneToMany
+    private List<ResponderEntity> responders;
     @CreationTimestamp
     private ZonedDateTime timestamp;
     @UpdateTimestamp

@@ -24,9 +24,9 @@ public class QuestionResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createQuestion(SubjectDto subjectDto) {
+    public Response createQuestion(QuestionDto questionDto) {
         String username = request.getHeader("username");
-        UUID questionId = questionService.createQuestion(username, subjectDto.subject());
+        UUID questionId = questionService.createQuestion(username, questionDto);
         return Response.created(URI.create("/api/v1/questions/" + questionId)).build();
     }
 

@@ -1,5 +1,6 @@
 package com.devex.responder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -14,9 +15,11 @@ import lombok.EqualsAndHashCode;
 public class ResponderEntity extends PanacheEntity {
 
     private String username;
+    @JsonIgnore
     private String password;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "token")
+    @JsonIgnore
     private ResponderTokenEntity token;
 }

@@ -1,5 +1,6 @@
 package com.devex.question;
 
+import com.devex.responder.ResponderEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -16,9 +17,12 @@ import java.util.*;
 public class QuestionService {
 
     @Transactional
-    public UUID createQuestion(String username, String subject) {
+    public UUID createQuestion(String username, QuestionDto questionDto) {
+        List<ResponderEntity> responderEntities = ResponderEntity.list("username IN ?1", questionDto.usernames());
+
         QuestionEntity questionEntity = new QuestionEntity();
-        questionEntity.setQuestion(subject);
+        questionEntity.setQuestion(questionDto.question());
+        questionEntity.setResponders(responderEntities);
         questionEntity.setStarter(username);
         QuestionEntity.persist(questionEntity);
         return questionEntity.id;
@@ -28,19 +32,21 @@ public class QuestionService {
 
         Map<String, Object> paramMap = new HashMap<>();
 
+
         String query = "SELECT q " +
                 "FROM QuestionEntity q " +
-                "LEFT JOIN q.answers a " +
-                "WHERE (q.starter = :username OR a.username = :username)";
+                "LEFT JOIN q.responders r " +
+                "WHERE (q.starter = :username OR r.username = :username)";
 
+//        String query = "(starter = :username OR :username in (select username from responders)";
         paramMap.put("username", username);
 
         if (question != null) {
-            query += " AND q.question like :question";
-            paramMap.put("question", question);
+            query += " AND question like :question";
+            paramMap.put("question", "%" + question + "%");
         }
         if (answered != null) {
-            query += " AND q.answered = :answered";
+            query += " AND answered = :answered";
             paramMap.put("answered", answered);
         }
         return QuestionEntity.list(query, paramMap);

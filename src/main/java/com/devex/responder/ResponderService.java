@@ -42,7 +42,7 @@ public class ResponderService {
         }
 
 
-        if(existingResponderEntity.getToken().getUpdated().isBefore(ZonedDateTime.now().plusMinutes(30L))){
+        if(existingResponderEntity.getToken() != null && existingResponderEntity.getToken().getUpdated().isBefore(ZonedDateTime.now().plusMinutes(30L))){
             return existingResponderEntity.getToken().getToken();
         }
 
