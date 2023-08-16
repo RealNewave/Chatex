@@ -61,7 +61,7 @@ public class ResponderService {
         }
         ResponderTokenEntity responderTokenEntity = responderTokenEntityOptional.get();
         boolean isTokenUsernameMatch = ResponderEntity.find("username = ?1 and token.token = ?2", username, token).firstResultOptional().isPresent();
-        boolean isValid = isTokenUsernameMatch && responderTokenEntity.getUpdated().isBefore(ZonedDateTime.now().plusMinutes(30L));
+        boolean isValid = isTokenUsernameMatch && responderTokenEntity.getUpdated().isAfter(ZonedDateTime.now().minusMinutes(30L));
         if(isValid){
             responderTokenEntity.setUpdated(ZonedDateTime.now());
             responderTokenEntity.persist();

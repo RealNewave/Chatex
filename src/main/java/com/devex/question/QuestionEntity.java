@@ -2,10 +2,7 @@ package com.devex.question;
 
 import com.devex.responder.ResponderEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,5 +34,8 @@ public class QuestionEntity extends PanacheEntityBase {
     private ZonedDateTime updated;
 
     private boolean answered;
+
+    @Column(name = "open_to_public")
+    private boolean openToPublic;
 
 }

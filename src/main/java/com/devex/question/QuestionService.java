@@ -38,7 +38,6 @@ public class QuestionService {
                 "LEFT JOIN q.responders r " +
                 "WHERE (q.starter = :username OR r.username = :username)";
 
-//        String query = "(starter = :username OR :username in (select username from responders)";
         paramMap.put("username", username);
 
         if (question != null) {
@@ -82,5 +81,9 @@ public class QuestionService {
     @Transactional
     public void closeQuestion(UUID questionId, String username) {
         QuestionEntity.update("answered = true WHERE starter = ?1 AND id = ?2", username, questionId);
+    }
+
+    public boolean isQuestionPublic(String questionId) {
+        return QuestionEntity.count("id = ?1 and openToPublic = true", UUID.fromString(questionId)) == 1;
     }
 }

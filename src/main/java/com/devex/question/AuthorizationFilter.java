@@ -18,19 +18,23 @@ import java.util.UUID;
 public class AuthorizationFilter implements ContainerRequestFilter {
 
     final ResponderService responderService;
+    final QuestionService questionService;
 
     @Context
     HttpServerRequest request;
 
     @Override
     public void filter(ContainerRequestContext containerRequestContext){
+        String token = request.getHeader("Authorization");
+        String username = request.getHeader("username");
 
         if(request.uri().contains("/api/v1/responders") && !containerRequestContext.getRequest().getMethod().equals("PUT")){
             return;
         }
 
-        String token = request.getHeader("Authorization");
-        String username = request.getHeader("username");
+        if(request.getParam("questionId") != null && questionService.isQuestionPublic(request.getParam("questionId"))){
+            return;
+        }
 
         if(token == null || token.isBlank()|| username == null || username.isBlank()){
             throw new UnauthorizedException("Login first!");
