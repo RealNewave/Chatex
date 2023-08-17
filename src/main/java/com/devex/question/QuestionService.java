@@ -1,6 +1,5 @@
 package com.devex.question;
 
-import com.devex.responder.ResponderEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
@@ -17,21 +16,17 @@ import java.util.*;
 public class QuestionService {
 
     @Transactional
-    public UUID createQuestion(String username, QuestionDto questionDto) {
-        List<ResponderEntity> responderEntities = ResponderEntity.list("username IN ?1", questionDto.usernames());
-
+    public UUID createQuestion(String username, CreateQuestionDto questionDto) {
         QuestionEntity questionEntity = new QuestionEntity();
         questionEntity.setQuestion(questionDto.question());
-        questionEntity.setResponders(responderEntities);
+        questionEntity.setOpenToPublic(questionDto.openToPublic());
         questionEntity.setStarter(username);
         QuestionEntity.persist(questionEntity);
         return questionEntity.id;
     }
 
     public List<QuestionEntity> getQuestions(final String username, final String question, Boolean answered) {
-
         Map<String, Object> paramMap = new HashMap<>();
-
 
         String query = "SELECT q " +
                 "FROM QuestionEntity q " +
@@ -79,8 +74,8 @@ public class QuestionService {
     }
 
     @Transactional
-    public void closeQuestion(UUID questionId, String username) {
-        QuestionEntity.update("answered = true WHERE starter = ?1 AND id = ?2", username, questionId);
+    public void updateQuestion(UUID questionId, String username, QuestionDto questionDto) {
+        QuestionEntity.update("question = ?3, answered = ?4, openToPublic = ?5 WHERE  id = ?1 AND starter = ?2", questionId, username, questionDto.question(), questionDto.answered(), questionDto.openToPublic());
     }
 
     public boolean isQuestionPublic(String questionId) {

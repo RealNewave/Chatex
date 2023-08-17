@@ -1,15 +1,15 @@
 package com.devex.question;
 
-import io.vertx.core.http.HttpServerRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
-import jakarta.ws.rs.core.Context;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.context.ManagedExecutor;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -24,9 +24,6 @@ public class QuestionSocket {
     final Map<Set<String>, Session> sessionMap = new ConcurrentHashMap<>();
     final QuestionService questionService;
     final ManagedExecutor managedExecutor;
-
-    @Context
-    HttpServerRequest request;
 
     @OnOpen
     public void onOpen(Session session, @PathParam("questionId") String questionId, @PathParam("username") String username){
@@ -50,8 +47,9 @@ public class QuestionSocket {
     @OnMessage
     public void onMessage(String message, @PathParam("questionId") String questionId, @PathParam("username") String username){
         log.info("questionId: {} got message: {}", questionId, message);
+        String decodedUsername = URLDecoder.decode(username, StandardCharsets.UTF_8);
         managedExecutor.submit(() -> {
-            AnswerEntity answerEntity = questionService.answerQuestion(UUID.fromString(questionId), username, message);
+            AnswerEntity answerEntity = questionService.answerQuestion(UUID.fromString(questionId), decodedUsername, message);
             sessionMap.forEach((key, session) -> {
                 if(key.contains(questionId)){
                     session.getAsyncRemote().sendObject(answerEntity, result -> {

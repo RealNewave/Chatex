@@ -24,7 +24,7 @@ public class QuestionResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createQuestion(QuestionDto questionDto) {
+    public Response createQuestion(CreateQuestionDto questionDto) {
         String username = request.getHeader("username");
         UUID questionId = questionService.createQuestion(username, questionDto);
         return Response.created(URI.create("/api/v1/questions/" + questionId)).build();
@@ -56,13 +56,14 @@ public class QuestionResource {
         return Response.accepted().build();
     }
 
-    @POST
+    @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("{questionId}/close")
-    public Response closeQuestion(@PathParam("questionId") String questionId){
+    @Path("{questionId}")
+    public Response updateQuestion(@PathParam("questionId") String questionId, QuestionDto questionDto){
         String username = request.getHeader("username");
-        questionService.closeQuestion(UUID.fromString(questionId), username);
+        questionService.updateQuestion(UUID.fromString(questionId), username, questionDto);
         return Response.accepted().build();
     }
+
 }

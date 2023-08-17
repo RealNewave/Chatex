@@ -32,7 +32,8 @@ public class AuthorizationFilter implements ContainerRequestFilter {
             return;
         }
 
-        if(request.getParam("questionId") != null && questionService.isQuestionPublic(request.getParam("questionId"))){
+        String[] params = request.path().split("/");
+        if(params.length == 5 && questionService.isQuestionPublic(params[4])){
             return;
         }
 

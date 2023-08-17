@@ -1,7 +1,4 @@
 package com.devex.question;
 
-import java.util.List;
-
-public record QuestionDto(String question, List<String> usernames) {
-
+public record QuestionDto(String question, boolean answered, boolean openToPublic) {
 }
